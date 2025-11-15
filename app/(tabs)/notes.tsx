@@ -1,45 +1,85 @@
-import { useState } from "react";
+import { deleteNote, getNotes } from "@/lib/notes";
+import { Link, router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import {
+  Alert,
   FlatList,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 
 export default function NotesScreen() {
   const [notes, setNotes] = useState<string[]>([]);
-  const [text, setText] = useState("");
 
-  function addNote() {
-    if (!text.trim()) return;
-    setNotes([...notes, text]);
-    setText("");
+  useFocusEffect(
+    useCallback(() => {
+      const load = async () => {
+        const data = await getNotes();
+        setNotes(data);
+      };
+      load();
+    }, [])
+  );
+
+  function openOptions(index: number) {
+    Alert.alert("Opções", "O que deseja fazer?", [
+      {
+        text: "Editar",
+        onPress: () =>
+          router.push({ pathname: "/note/[id]", params: { id: index } }),
+      },
+      {
+        text: "Excluir",
+        onPress: async () => {
+          await deleteNote(index);
+          const updated = await getNotes();
+          setNotes(updated);
+        },
+        style: "destructive",
+      },
+      { text: "Cancelar", style: "cancel" },
+    ]);
   }
 
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1, padding: 20 }}>
       <Text style={styles.title}>Minhas Notas</Text>
 
-      <View style={styles.row}>
-        <TextInput
-          style={styles.input}
-          placeholder="Escreva aqui..."
-          value={text}
-          onChangeText={setText}
-        />
-        <TouchableOpacity style={styles.btn} onPress={addNote}>
-          <Text style={styles.btnText}>+</Text>
+      <Link href="/note/new" asChild>
+        <TouchableOpacity style={styles.addBtn}>
+          <Text style={{ color: "white", fontWeight: "bold" }}>
+            Adicionar Nota +
+          </Text>
         </TouchableOpacity>
-      </View>
+      </Link>
 
       <FlatList
         data={notes}
         keyExtractor={(_, i) => i.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.note}>
-            <Text>{item}</Text>
+        renderItem={({ item, index }) => (
+          <View style={styles.card}>
+            {/* Texto abre a nota */}
+            <Link
+              href={{
+                pathname: "/note/[id]",
+                params: { id: index.toString() },
+              }}
+              asChild
+            >
+              <TouchableOpacity style={{ flex: 1 }}>
+                <Text style={styles.noteText}>{item}</Text>
+              </TouchableOpacity>
+            </Link>
+
+            {/* Três pontos */}
+            <TouchableOpacity
+              onPress={() => openOptions(index)}
+              style={styles.menuBtn}
+            >
+              <Text style={{ fontSize: 20 }}>⋮</Text>
+            </TouchableOpacity>
           </View>
         )}
       />
@@ -48,27 +88,35 @@ export default function NotesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  row: { flexDirection: "row", marginBottom: 20 },
-  title: { fontSize: 26, fontWeight: "bold", marginBottom: 20 },
-  note: {
-    padding: 12,
-    backgroundColor: "#eee",
-    borderRadius: 8,
-    marginBottom: 10,
+  title: {
+    fontSize: 26,
+    fontWeight: "bold",
+    marginBottom: 20,
+    marginTop: 30,
   },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: "#aaa",
-    padding: 10,
-    borderRadius: 8,
-  },
-  btn: {
-    padding: 10,
-    marginLeft: 10,
+
+  addBtn: {
     backgroundColor: "#007AFF",
-    borderRadius: 8,
+    padding: 12,
+    borderRadius: 10,
+    marginBottom: 20,
   },
-  btnText: { fontSize: 22, color: "white" },
+
+  card: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    backgroundColor: "#d6d3d3ff",
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+
+  noteText: {
+    fontSize: 16,
+  },
+
+  menuBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
 });
