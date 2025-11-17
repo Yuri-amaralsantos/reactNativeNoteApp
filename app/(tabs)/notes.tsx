@@ -1,47 +1,30 @@
-import { deleteNote, getNotes } from "@/lib/notes";
+import { OptionsModal } from "@/app/(tabs)/components/OptionsModal";
+import { useNotes } from "@/stores/useNote";
+import { Note } from "@/types/note";
 import { Link, router, useFocusEffect } from "expo-router";
-import { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
-  Alert,
   FlatList,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { NoteCard } from "./components/noteCard";
 
 export default function NotesScreen() {
-  const [notes, setNotes] = useState<string[]>([]);
+  const { notes = [], load, deleteNote } = useNotes();
+  const [selected, setSelected] = useState<Note | null>(null);
 
   useFocusEffect(
     useCallback(() => {
-      const load = async () => {
-        const data = await getNotes();
-        setNotes(data);
-      };
       load();
-    }, [])
+    }, [load])
   );
 
-  function openOptions(index: number) {
-    Alert.alert("Opções", "O que deseja fazer?", [
-      {
-        text: "Editar",
-        onPress: () =>
-          router.push({ pathname: "/note/[id]", params: { id: index } }),
-      },
-      {
-        text: "Excluir",
-        onPress: async () => {
-          await deleteNote(index);
-          const updated = await getNotes();
-          setNotes(updated);
-        },
-        style: "destructive",
-      },
-      { text: "Cancelar", style: "cancel" },
-    ]);
-  }
+  const safeNotes = notes.filter(
+    (n) => n && typeof n === "object" && "id" in n
+  );
 
   return (
     <View style={{ flex: 1, padding: 20 }}>
@@ -55,33 +38,36 @@ export default function NotesScreen() {
         </TouchableOpacity>
       </Link>
 
-      <FlatList
-        data={notes}
-        keyExtractor={(_, i) => i.toString()}
-        renderItem={({ item, index }) => (
-          <View style={styles.card}>
-            {/* Texto abre a nota */}
-            <Link
-              href={{
-                pathname: "/note/[id]",
-                params: { id: index.toString() },
-              }}
-              asChild
-            >
-              <TouchableOpacity style={{ flex: 1 }}>
-                <Text style={styles.noteText}>{item}</Text>
-              </TouchableOpacity>
-            </Link>
+      {safeNotes.length === 0 && (
+        <Text style={{ opacity: 0.5, marginTop: 20 }}>
+          Nenhuma nota encontrada.
+        </Text>
+      )}
 
-            {/* Três pontos */}
-            <TouchableOpacity
-              onPress={() => openOptions(index)}
-              style={styles.menuBtn}
-            >
-              <Text style={{ fontSize: 20 }}>⋮</Text>
-            </TouchableOpacity>
-          </View>
+      <FlatList
+        data={safeNotes}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <NoteCard note={item} onOptionsPress={(note) => setSelected(note)} />
         )}
+      />
+
+      <OptionsModal
+        visible={!!selected}
+        onClose={() => setSelected(null)}
+        onEdit={() => {
+          if (!selected) return;
+          router.push({
+            pathname: "/note/[id]",
+            params: { id: selected.id },
+          });
+          setSelected(null);
+        }}
+        onDelete={async () => {
+          if (!selected) return;
+          await deleteNote(selected.id);
+          setSelected(null);
+        }}
       />
     </View>
   );
@@ -100,23 +86,5 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 10,
     marginBottom: 20,
-  },
-
-  card: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    backgroundColor: "#d6d3d3ff",
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-
-  noteText: {
-    fontSize: 16,
-  },
-
-  menuBtn: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
   },
 });
