@@ -10,10 +10,9 @@ export type Note = {
   id: string;
   type: NoteType;
 
+  title: string;
+
   content?: string;
-
-  title?: string;
   subtasks?: Subtask[];
-
   date?: string;
 };

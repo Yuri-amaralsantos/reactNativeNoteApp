@@ -1,5 +1,5 @@
 import { getNotes, saveNotes } from "@/lib/notes";
-import { Note } from "@/types/note";
+import { Note, Subtask } from "@/types/note";
 import uuid from "react-native-uuid";
 import { create } from "zustand";
 
@@ -7,8 +7,8 @@ type NotesState = {
   notes: Note[];
 
   load: () => Promise<void>;
-  addTextNote: (text: string) => Promise<void>;
-  addTaskNote: (title: string) => Promise<void>;
+  addTextNote: (title: string, text: string) => Promise<void>;
+  addTaskNote: (title: string, subttasks: Subtask[]) => Promise<void>;
   addEventNote: (title: string, date: string) => Promise<void>;
 
   updateNote: (id: string, patch: Partial<Note>) => Promise<void>;
@@ -23,9 +23,10 @@ export const useNotes = create<NotesState>((set, get) => ({
     set({ notes: data });
   },
 
-  addTextNote: async (text: string) => {
+  addTextNote: async (title: string, text: string) => {
     const newNote: Note = {
       id: uuid.v4() as string,
+      title,
       type: "text",
       content: text,
     };
@@ -35,12 +36,12 @@ export const useNotes = create<NotesState>((set, get) => ({
     await saveNotes(notes);
   },
 
-  addTaskNote: async (title: string) => {
+  addTaskNote: async (title: string, subtasks: Subtask[]) => {
     const newNote: Note = {
       id: uuid.v4() as string,
       type: "task",
       title,
-      subtasks: [],
+      subtasks,
     };
 
     const notes = [...get().notes, newNote];
