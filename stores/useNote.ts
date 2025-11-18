@@ -1,4 +1,4 @@
-import { getNotes, saveNotes } from "@/lib/notes";
+import { getNotes, saveNotes } from "@/lib/notesLib";
 import { Note, Subtask } from "@/types/note";
 import uuid from "react-native-uuid";
 import { create } from "zustand";
