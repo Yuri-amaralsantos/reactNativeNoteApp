@@ -3,6 +3,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
+  Alert,
   Button,
   StyleSheet,
   Text,
@@ -19,7 +20,9 @@ export default function NewNote() {
   const [description, setDescription] = useState("");
   const [subtasks, setSubtasks] = useState<string[]>([]);
   const [eventDate, setEventDate] = useState<Date | null>(null);
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState<null | "date" | "time">(
+    null
+  );
 
   function addSubtaskField() {
     setSubtasks([...subtasks, ""]);
@@ -31,18 +34,21 @@ export default function NewNote() {
     setSubtasks(copy);
   }
 
-  function onDateChange(_: any, selected?: Date) {
-    setShowDatePicker(false);
-    if (selected) {
-      setEventDate(selected);
-    }
-  }
-
   function removeSubtask(index: number) {
     setSubtasks(subtasks.filter((_, i) => i !== index));
   }
 
   async function save() {
+    if (!title.trim()) {
+      Alert.alert("Título obrigatório", "Adicione um título antes de salvar.");
+      return;
+    }
+
+    if (type === "event" && !eventDate) {
+      Alert.alert("Data obrigatória", "Selecione a data e hora do evento.");
+      return;
+    }
+
     if (type === "text") {
       await addTextNote(title, description);
     }
@@ -60,11 +66,21 @@ export default function NewNote() {
     }
 
     if (type === "event") {
-      await addEventNote(
-        title,
-        eventDate ? eventDate.toISOString() : "",
-        description
-      );
+      let iso = "";
+
+      if (eventDate) {
+        iso = new Date(
+          Date.UTC(
+            eventDate.getFullYear(),
+            eventDate.getMonth(),
+            eventDate.getDate(),
+            eventDate.getHours(),
+            eventDate.getMinutes()
+          )
+        ).toISOString();
+      }
+
+      await addEventNote(title, iso, description);
     }
 
     router.back();
@@ -146,21 +162,62 @@ export default function NewNote() {
 
           <TouchableOpacity
             style={styles.input}
-            onPress={() => setShowDatePicker(true)}
+            onPress={() => setShowDatePicker("date")}
           >
             <Text style={{ fontSize: 16 }}>
               {eventDate
-                ? eventDate.toLocaleDateString("pt-BR")
+                ? `${eventDate.toLocaleDateString(
+                    "pt-BR"
+                  )} ${eventDate.toLocaleTimeString("pt-BR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}`
                 : "Selecionar data"}
             </Text>
           </TouchableOpacity>
 
-          {showDatePicker && (
+          {showDatePicker === "date" && (
             <DateTimePicker
               value={eventDate ?? new Date()}
               mode="date"
               display="default"
-              onChange={onDateChange}
+              onChange={(_, selected) => {
+                setShowDatePicker(null);
+                if (!selected) return;
+
+                const d = new Date(
+                  selected.getFullYear(),
+                  selected.getMonth(),
+                  selected.getDate()
+                );
+
+                setEventDate(d);
+
+                setTimeout(() => setShowDatePicker("time"), 300);
+              }}
+            />
+          )}
+
+          {showDatePicker === "time" && (
+            <DateTimePicker
+              value={eventDate ?? new Date()}
+              mode="time"
+              display="spinner"
+              is24Hour={true}
+              onChange={(_, selected) => {
+                setShowDatePicker(null);
+                if (!selected || !eventDate) return;
+
+                const d = new Date(
+                  eventDate.getFullYear(),
+                  eventDate.getMonth(),
+                  eventDate.getDate(),
+                  selected.getHours(),
+                  selected.getMinutes()
+                );
+
+                setEventDate(d);
+              }}
             />
           )}
         </>

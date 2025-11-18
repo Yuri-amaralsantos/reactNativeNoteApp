@@ -21,7 +21,10 @@ export default function EditNoteScreen() {
   const { notes, load, updateNote, deleteNote } = useNotes();
   const [note, setNote] = useState<Note | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState<null | "date" | "time">(
+    null
+  );
+  const [eventDate, setEventDate] = useState<Date | null>(null);
 
   useEffect(() => {
     load();
@@ -32,7 +35,17 @@ export default function EditNoteScreen() {
     if (found) setNote(found);
   }, [notes, id]);
 
-  if (!note) return;
+  useEffect(() => {
+    const found = notes.find((n) => n.id === id);
+    if (found) {
+      setNote(found);
+
+      if (found.type === "event" && found.date) {
+        setEventDate(new Date(found.date));
+      }
+    }
+  }, [notes, id]);
+
   if (!note) {
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
@@ -66,13 +79,39 @@ export default function EditNoteScreen() {
   }
 
   async function saveEdits() {
-    if (!note) return null;
+    if (!note) return;
+
+    if (!note.title.trim()) {
+      Alert.alert("Título obrigatório", "Adicione um título antes de salvar.");
+      return;
+    }
+
+    if (note.type === "event" && !eventDate) {
+      Alert.alert("Data obrigatória", "Selecione a data e hora do evento.");
+      return;
+    }
+
+    let finalDate = note.date ?? "";
+
+    if (note.type === "event" && eventDate) {
+      finalDate = new Date(
+        Date.UTC(
+          eventDate.getFullYear(),
+          eventDate.getMonth(),
+          eventDate.getDate(),
+          eventDate.getHours(),
+          eventDate.getMinutes()
+        )
+      ).toISOString();
+    }
+
     const patch: Partial<Note> = {
       title: note.title,
       description: note.description,
       subtasks: note.subtasks,
-      date: note.date,
+      date: finalDate,
     };
+
     await updateNote(note.id, patch);
     setIsEditing(false);
     Alert.alert("Salvo", "Alterações salvas com sucesso.");
@@ -102,13 +141,6 @@ export default function EditNoteScreen() {
     if (!note.subtasks) return;
     const updated = note.subtasks.filter((_, i) => i !== index);
     setNote({ ...note, subtasks: updated });
-  }
-
-  function onDateChange(_: any, selected?: Date) {
-    setShowDatePicker(false);
-    if (selected && note) {
-      setNote({ ...note, date: selected.toISOString() });
-    }
   }
 
   async function handleDelete() {
@@ -180,22 +212,66 @@ export default function EditNoteScreen() {
         {isEditing && note ? (
           <>
             <Text style={styles.subtitle}>Data do evento</Text>
+
             <TouchableOpacity
               style={styles.dateButton}
-              onPress={() => setShowDatePicker(true)}
+              onPress={() => setShowDatePicker("date")}
             >
               <Text style={styles.dateText}>
-                {note.date
-                  ? new Date(note.date).toLocaleDateString("pt-BR")
+                {eventDate
+                  ? `${eventDate.toLocaleDateString(
+                      "pt-BR"
+                    )} ${eventDate.toLocaleTimeString("pt-BR", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}`
                   : "Selecionar data"}
               </Text>
             </TouchableOpacity>
-            {showDatePicker && (
+
+            {showDatePicker === "date" && (
               <DateTimePicker
-                value={note.date ? new Date(note.date) : new Date()}
+                value={eventDate ?? new Date()}
                 mode="date"
                 display="default"
-                onChange={onDateChange}
+                onChange={(_, selected) => {
+                  setShowDatePicker(null);
+                  if (!selected) return;
+
+                  const d = new Date(
+                    selected.getFullYear(),
+                    selected.getMonth(),
+                    selected.getDate()
+                  );
+
+                  setEventDate(d);
+
+                  // abrir o time depois de escolher data
+                  setTimeout(() => setShowDatePicker("time"), 300);
+                }}
+              />
+            )}
+
+            {showDatePicker === "time" && (
+              <DateTimePicker
+                value={eventDate ?? new Date()}
+                mode="time"
+                display="spinner"
+                is24Hour={true}
+                onChange={(_, selected) => {
+                  setShowDatePicker(null);
+                  if (!selected || !eventDate) return;
+
+                  const d = new Date(
+                    eventDate.getFullYear(),
+                    eventDate.getMonth(),
+                    eventDate.getDate(),
+                    selected.getHours(),
+                    selected.getMinutes()
+                  );
+
+                  setEventDate(d);
+                }}
               />
             )}
           </>
