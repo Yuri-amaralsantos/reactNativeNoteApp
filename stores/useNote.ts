@@ -7,9 +7,17 @@ type NotesState = {
   notes: Note[];
 
   load: () => Promise<void>;
-  addTextNote: (title: string, text: string) => Promise<void>;
-  addTaskNote: (title: string, subttasks: Subtask[]) => Promise<void>;
-  addEventNote: (title: string, date: string) => Promise<void>;
+  addTextNote: (title: string, description: string) => Promise<void>;
+  addTaskNote: (
+    title: string,
+    subttasks: Subtask[],
+    description: string
+  ) => Promise<void>;
+  addEventNote: (
+    title: string,
+    date: string,
+    description: string
+  ) => Promise<void>;
 
   updateNote: (id: string, patch: Partial<Note>) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
@@ -23,12 +31,12 @@ export const useNotes = create<NotesState>((set, get) => ({
     set({ notes: data });
   },
 
-  addTextNote: async (title: string, text: string) => {
+  addTextNote: async (title: string, description: string) => {
     const newNote: Note = {
       id: uuid.v4() as string,
-      title,
       type: "text",
-      content: text,
+      title,
+      description,
     };
 
     const notes = [...get().notes, newNote];
@@ -36,11 +44,16 @@ export const useNotes = create<NotesState>((set, get) => ({
     await saveNotes(notes);
   },
 
-  addTaskNote: async (title: string, subtasks: Subtask[]) => {
+  addTaskNote: async (
+    title: string,
+    subtasks: Subtask[],
+    description: string
+  ) => {
     const newNote: Note = {
       id: uuid.v4() as string,
       type: "task",
       title,
+      description,
       subtasks,
     };
 
@@ -49,11 +62,12 @@ export const useNotes = create<NotesState>((set, get) => ({
     await saveNotes(notes);
   },
 
-  addEventNote: async (title: string, date: string) => {
+  addEventNote: async (title: string, date: string, description: string) => {
     const newNote: Note = {
       id: uuid.v4() as string,
       type: "event",
       title,
+      description,
       date,
     };
 

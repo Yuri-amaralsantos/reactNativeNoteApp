@@ -15,7 +15,7 @@ export default function NewNote() {
 
   const [type, setType] = useState<"text" | "task" | "event">("text");
   const [title, setTitle] = useState("");
-  const [text, setText] = useState("");
+  const [description, setDescription] = useState("");
   const [subtasks, setSubtasks] = useState<string[]>([]);
   const [eventDate, setEventDate] = useState("");
 
@@ -35,7 +35,7 @@ export default function NewNote() {
 
   async function save() {
     if (type === "text") {
-      await addTextNote(title, text);
+      await addTextNote(title, description);
     }
 
     if (type === "task") {
@@ -45,12 +45,13 @@ export default function NewNote() {
           id: String(Date.now() + Math.random()),
           title: s,
           done: false,
-        }))
+        })),
+        description
       );
     }
 
     if (type === "event") {
-      await addEventNote(title, eventDate);
+      await addEventNote(title, eventDate, description);
     }
 
     router.back();
@@ -65,6 +66,15 @@ export default function NewNote() {
         placeholder="Título..."
         value={title}
         onChangeText={setTitle}
+      />
+
+      <TextInput
+        style={styles.textArea}
+        placeholder="Descrição..."
+        value={description}
+        onChangeText={setDescription}
+        multiline
+        textAlignVertical="top"
       />
 
       <View style={styles.typeSelector}>
@@ -87,17 +97,6 @@ export default function NewNote() {
           </TouchableOpacity>
         ))}
       </View>
-
-      {type === "text" && (
-        <TextInput
-          style={styles.textArea}
-          placeholder="Digite sua nota..."
-          value={text}
-          onChangeText={setText}
-          multiline
-          textAlignVertical="top"
-        />
-      )}
 
       {type === "task" && (
         <>

@@ -11,8 +11,8 @@ export type Note = {
   type: NoteType;
 
   title: string;
+  description: string;
 
-  content?: string;
   subtasks?: Subtask[];
   date?: string;
 };
