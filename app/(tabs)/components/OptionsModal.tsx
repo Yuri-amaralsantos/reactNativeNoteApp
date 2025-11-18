@@ -9,7 +9,7 @@ type Props = {
 
 export function OptionsModal({ visible, onClose, onEdit, onDelete }: Props) {
   return (
-    <Modal visible={visible} transparent animationType="slide">
+    <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.box}>
           <TouchableOpacity onPress={onEdit}>
