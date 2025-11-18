@@ -94,15 +94,7 @@ export default function EditNoteScreen() {
     let finalDate = note.date ?? "";
 
     if (note.type === "event" && eventDate) {
-      finalDate = new Date(
-        Date.UTC(
-          eventDate.getFullYear(),
-          eventDate.getMonth(),
-          eventDate.getDate(),
-          eventDate.getHours(),
-          eventDate.getMinutes()
-        )
-      ).toISOString();
+      finalDate = eventDate.toISOString();
     }
 
     const patch: Partial<Note> = {

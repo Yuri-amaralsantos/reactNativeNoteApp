@@ -1,4 +1,5 @@
 import { useNotes } from "@/stores/useNote";
+import { Note } from "@/types/note";
 import { Link, useFocusEffect } from "expo-router";
 import React, { useCallback } from "react";
 import {
@@ -19,9 +20,28 @@ export default function NotesScreen() {
     }, [load])
   );
 
-  const safeNotes = notes.filter(
+  const safeNotes: Note[] = notes.filter(
     (n) => n && typeof n === "object" && "id" in n
   );
+
+  // Função para formatar datas
+  function formatDateTime(iso?: string) {
+    if (!iso) return "";
+    const date = new Date(iso);
+    return date.toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  // Formata data antes de passar para o NoteCard
+  const formattedNotes = safeNotes.map((note) => ({
+    ...note,
+    date: note.date ? formatDateTime(note.date) : note.date,
+  }));
 
   return (
     <View style={{ flex: 1, padding: 20 }}>
@@ -35,14 +55,14 @@ export default function NotesScreen() {
         </TouchableOpacity>
       </Link>
 
-      {safeNotes.length === 0 && (
+      {formattedNotes.length === 0 && (
         <Text style={{ opacity: 0.5, marginTop: 20 }}>
           Nenhuma nota encontrada.
         </Text>
       )}
 
       <FlatList
-        data={safeNotes}
+        data={formattedNotes}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <NoteCard note={item} />}
       />
