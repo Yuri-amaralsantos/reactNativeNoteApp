@@ -1,7 +1,9 @@
+import { Note, NoteType, Subtask } from "@/types/note";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Checkbox } from "expo-checkbox";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
+
 import {
   Alert,
   ScrollView,
@@ -13,7 +15,6 @@ import {
 } from "react-native";
 
 import { useNotes } from "@/stores/useNote";
-import { Note, Subtask } from "@/types/note";
 
 export default function EditNoteScreen() {
   const { id } = useLocalSearchParams();
@@ -101,6 +102,7 @@ export default function EditNoteScreen() {
       description: note.description,
       subtasks: note.subtasks,
       date: finalDate,
+      type: note.type,
     };
 
     await updateNote(note.id, patch);
@@ -196,6 +198,51 @@ export default function EditNoteScreen() {
     if (isEditing && note) {
       return (
         <>
+          {isEditing && note && (
+            <View style={{ marginBottom: 12 }}>
+              <Text style={styles.subtitle}>Tipo de nota</Text>
+              <View style={styles.typeSelector}>
+                {["text", "task", "event"].map((t) => (
+                  <TouchableOpacity
+                    key={t}
+                    style={[
+                      styles.typeBtn,
+                      note.type === t && styles.typeBtnActive,
+                    ]}
+                    onPress={() => {
+                      let updatedNote = { ...note, type: t as NoteType };
+
+                      if (t === "text") {
+                        delete updatedNote.subtasks;
+                        delete updatedNote.date;
+                      } else if (t === "task") {
+                        updatedNote.subtasks = updatedNote.subtasks ?? [];
+                        delete updatedNote.date;
+                      } else if (t === "event") {
+                        updatedNote.date =
+                          updatedNote.date ?? new Date().toISOString();
+                        delete updatedNote.subtasks;
+                      }
+
+                      setNote(updatedNote);
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: note.type === t ? "white" : "#555",
+                        fontWeight: "600",
+                      }}
+                    >
+                      {t === "text" && "Texto"}
+                      {t === "task" && "Tarefa"}
+                      {t === "event" && "Evento"}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          )}
+
           <TextInput
             style={styles.input}
             value={note.title}
@@ -510,5 +557,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#e5e5e5",
     borderRadius: 12,
     alignItems: "center",
+  },
+  typeSelector: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 12,
+  },
+
+  typeBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: "#e5e5e5",
+    borderRadius: 8,
+  },
+
+  typeBtnActive: {
+    backgroundColor: "#4F46E5",
   },
 });
