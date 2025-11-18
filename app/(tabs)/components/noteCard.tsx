@@ -44,22 +44,24 @@ export function NoteCard({ note }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    padding: 16,
-    backgroundColor: "#d6d3d3ff",
-    borderRadius: 12,
+    padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 16,
     marginBottom: 12,
+  },
+  noteTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#111827",
+  },
+  subInfo: {
+    fontSize: 14,
+    color: "#6B7280",
+    marginTop: 4,
   },
   cardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-  },
-  noteTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  subInfo: {
-    fontSize: 14,
-    opacity: 0.7,
   },
 });

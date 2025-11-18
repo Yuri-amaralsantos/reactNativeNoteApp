@@ -4,7 +4,6 @@ import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
-  Button,
   StyleSheet,
   Text,
   TextInput,
@@ -223,7 +222,9 @@ export default function NewNote() {
         </>
       )}
 
-      <Button title="Salvar" onPress={save} />
+      <TouchableOpacity style={styles.doneBtn} onPress={save}>
+        <Text style={styles.doneBtnText}>Salvar</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -242,24 +243,45 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    backgroundColor: "white",
-    padding: 12,
-    borderRadius: 10,
+    borderWidth: 0,
+    backgroundColor: "#fff",
+    padding: 14,
+    borderRadius: 12,
     fontSize: 16,
-    marginBottom: 15,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+
+  doneBtn: {
+    backgroundColor: "#4F46E5",
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 16,
+    alignItems: "center",
+  },
+
+  doneBtnText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 
   textArea: {
-    borderWidth: 1,
-    borderColor: "#ccc",
     backgroundColor: "white",
     padding: 12,
     borderRadius: 10,
     fontSize: 16,
     marginBottom: 15,
     height: 200,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
 
   typeSelector: {
@@ -276,7 +298,7 @@ const styles = StyleSheet.create({
   },
 
   typeBtnActive: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#4F46E5",
   },
 
   subtitle: {

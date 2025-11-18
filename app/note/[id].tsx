@@ -4,7 +4,6 @@ import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
-  Button,
   ScrollView,
   StyleSheet,
   Text,
@@ -150,19 +149,47 @@ export default function EditNoteScreen() {
   }
 
   function renderHeader() {
-    if (note) {
-      return (
-        <View style={styles.headerRow}>
-          <Text style={styles.title}>{note.title || "Sem título"}</Text>
-          <View style={{ flexDirection: "row", gap: 8 }}>
-            {!isEditing && <Button title="Editar" onPress={startEditing} />}
-            {isEditing && <Button title="Salvar" onPress={saveEdits} />}
-            {isEditing && <Button title="Cancelar" onPress={cancelEditing} />}
-            <Button title="Excluir" color="#ff3b30" onPress={handleDelete} />
-          </View>
+    if (!note) return null;
+
+    return (
+      <View style={styles.headerRow}>
+        <Text style={styles.title}>{note.title || "Sem título"}</Text>
+        <View style={{ flexDirection: "row", gap: 8 }}>
+          {!isEditing && (
+            <TouchableOpacity
+              style={[styles.doneBtn, { backgroundColor: "#4F46E5" }]}
+              onPress={startEditing}
+            >
+              <Text style={styles.doneBtnText}>Editar</Text>
+            </TouchableOpacity>
+          )}
+
+          {isEditing && (
+            <>
+              <TouchableOpacity style={styles.doneBtn} onPress={saveEdits}>
+                <Text style={styles.doneBtnText}>Salvar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.doneBtn, { backgroundColor: "#ccc" }]}
+                onPress={cancelEditing}
+              >
+                <Text style={[styles.doneBtnText, { color: "#333" }]}>
+                  Cancelar
+                </Text>
+              </TouchableOpacity>
+            </>
+          )}
+
+          <TouchableOpacity
+            style={[styles.doneBtn, { backgroundColor: "#ff3b30" }]}
+            onPress={handleDelete}
+          >
+            <Text style={styles.doneBtnText}>Excluir</Text>
+          </TouchableOpacity>
         </View>
-      );
-    }
+      </View>
+    );
   }
 
   function renderAlways() {
@@ -238,7 +265,6 @@ export default function EditNoteScreen() {
 
                   setEventDate(d);
 
-                  // abrir o time depois de escolher data
                   setTimeout(() => setShowDatePicker("time"), 300);
                 }}
               />
@@ -371,23 +397,44 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    backgroundColor: "white",
-    padding: 12,
-    borderRadius: 10,
+    borderWidth: 0,
+    backgroundColor: "#fff",
+    padding: 14,
+    borderRadius: 12,
     fontSize: 16,
-    marginBottom: 12,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+
+  doneBtn: {
+    backgroundColor: "#4F46E5",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  doneBtnText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 
   textArea: {
-    borderWidth: 1,
-    borderColor: "#ccc",
     backgroundColor: "white",
     padding: 12,
     borderRadius: 10,
     fontSize: 16,
     minHeight: 120,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
 
   readDescription: {
@@ -461,7 +508,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     padding: 10,
     backgroundColor: "#e5e5e5",
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: "center",
   },
 });

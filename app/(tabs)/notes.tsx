@@ -123,18 +123,19 @@ const styles = StyleSheet.create({
   },
 
   addBtn: {
-    backgroundColor: "#007AFF",
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 12,
+    backgroundColor: "#4F46E5",
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 16,
+    alignItems: "center",
   },
 
   searchInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 12,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 12,
+    fontSize: 16,
+    marginBottom: 16,
   },
 
   filterRow: {
@@ -148,14 +149,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#007AFF",
+    borderColor: "#4F46E5",
   },
 
   filterBtnActive: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#4F46E5",
   },
 
   filterText: {
-    color: "#007AFF",
+    color: "#4F46E5",
   },
 });
