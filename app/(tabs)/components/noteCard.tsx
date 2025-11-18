@@ -14,8 +14,8 @@ export function NoteCard({ note }: Props) {
         <View style={styles.cardHeader}>
           <View style={{ flex: 1 }}>
             {note.type === "text" && (
-              <Text style={styles.noteText} numberOfLines={2}>
-                {note.description}
+              <Text style={styles.noteTitle} numberOfLines={2}>
+                {note.title}
               </Text>
             )}
 
@@ -53,9 +53,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-  },
-  noteText: {
-    fontSize: 16,
   },
   noteTitle: {
     fontSize: 18,

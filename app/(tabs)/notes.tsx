@@ -1,11 +1,11 @@
 import { useNotes } from "@/stores/useNote";
-import { Note } from "@/types/note";
 import { Link, useFocusEffect } from "expo-router";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import {
   FlatList,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -14,17 +14,17 @@ import { NoteCard } from "./components/noteCard";
 export default function NotesScreen() {
   const { notes = [], load } = useNotes();
 
+  const [search, setSearch] = useState("");
+  const [filterType, setFilterType] = useState<
+    "all" | "text" | "task" | "event"
+  >("all");
+
   useFocusEffect(
     useCallback(() => {
       load();
     }, [load])
   );
 
-  const safeNotes: Note[] = notes.filter(
-    (n) => n && typeof n === "object" && "id" in n
-  );
-
-  // Função para formatar datas
   function formatDateTime(iso?: string) {
     if (!iso) return "";
     const date = new Date(iso);
@@ -37,11 +37,19 @@ export default function NotesScreen() {
     });
   }
 
-  // Formata data antes de passar para o NoteCard
-  const formattedNotes = safeNotes.map((note) => ({
-    ...note,
-    date: note.date ? formatDateTime(note.date) : note.date,
-  }));
+  const displayedNotes = notes
+    .filter(
+      (n) =>
+        n &&
+        typeof n === "object" &&
+        "id" in n &&
+        (filterType === "all" || n.type === filterType) &&
+        n.title.toLowerCase().includes(search.toLowerCase())
+    )
+    .map((note) => ({
+      ...note,
+      date: note.date ? formatDateTime(note.date) : note.date,
+    }));
 
   return (
     <View style={{ flex: 1, padding: 20 }}>
@@ -55,16 +63,52 @@ export default function NotesScreen() {
         </TouchableOpacity>
       </Link>
 
-      {formattedNotes.length === 0 && (
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Pesquisar por título..."
+        value={search}
+        onChangeText={setSearch}
+      />
+
+      <View style={styles.filterRow}>
+        {["all", "text", "task", "event"].map((type) => (
+          <TouchableOpacity
+            key={type}
+            style={[
+              styles.filterBtn,
+              filterType === type && styles.filterBtnActive,
+            ]}
+            onPress={() => setFilterType(type as any)}
+          >
+            <Text
+              style={[
+                styles.filterText,
+                filterType === type && { color: "white", fontWeight: "bold" },
+              ]}
+            >
+              {type === "all"
+                ? "Todos"
+                : type === "text"
+                ? "Texto"
+                : type === "task"
+                ? "Tarefas"
+                : "Eventos"}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {displayedNotes.length === 0 && (
         <Text style={{ opacity: 0.5, marginTop: 20 }}>
           Nenhuma nota encontrada.
         </Text>
       )}
 
       <FlatList
-        data={formattedNotes}
+        data={displayedNotes}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <NoteCard note={item} />}
+        contentContainerStyle={{ paddingBottom: 40 }}
       />
     </View>
   );
@@ -82,6 +126,36 @@ const styles = StyleSheet.create({
     backgroundColor: "#007AFF",
     padding: 12,
     borderRadius: 10,
-    marginBottom: 20,
+    marginBottom: 12,
+  },
+
+  searchInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 12,
+  },
+
+  filterRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+
+  filterBtn: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#007AFF",
+  },
+
+  filterBtnActive: {
+    backgroundColor: "#007AFF",
+  },
+
+  filterText: {
+    color: "#007AFF",
   },
 });
