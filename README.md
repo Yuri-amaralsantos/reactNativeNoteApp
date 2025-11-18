@@ -1,50 +1,72 @@
-# Welcome to your Expo app 👋
+# BookRatingSite
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Descrição
 
-## Get started
+Um app em react native para salvar notas simples, tarefas e eventos no calendário. As notas possuem somente texto. As tarefas possuem um contador onde se pode visualizar o progresso da 
 
-1. Install dependencies
+## Tecnologias Utilizadas
 
-   ```bash
-   npm install
-   ```
+### Frontend:
 
-2. Start the app
+* React Native
 
-   ```bash
-   npx expo start
-   ```
+* Zustand
 
-In the output, you'll find options to open the app in a
+### Banco de Dados:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+* AsyncStorage
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Funcionalidades
 
-## Get a fresh project
+* Adicionar, editar e excluir notas.
 
-When you're ready, run:
+* Adicionar e remover subtarefas quando a nota é da categoria tarefas.
 
+* Marcar e desmarcar subtarefas como conclúidas quando a nota é da categoria tarefas.
+
+* Visualizar eventos no calendário.
+
+* Visualizar notas filtrando por titulo e categorias(texto, tarefa ou evento).
+
+* Interface simples e intuitiva.
+
+## Próximas funcionalidades
+
+* Salvar eventos no calendário local do usuário.
+
+---
+
+## 🛠️ **Como Instalar**
+
+### **Clonar o Repositório**
 ```bash
-npm run reset-project
+git clone https://github.com/Yuri-amaralsantos/reactNativeNoteApp.git
+``` 
+---
+
+### **Configurar o Backend**
+```bash
+npm install
+``` 
+---
+
+#### **Iniciar o backend:**
+```bash
+npm expo start
 ```
+---
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-## Learn more
 
-To learn more about developing your project with Expo, look at the following resources:
+## 🤝 **Contribuição**
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Contribuições são bem-vindas! Sinta-se à vontade para enviar issues e pull requests.
 
-## Join the community
 
-Join our community of developers creating universal apps.
+---
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 👨‍💻 Autor
+
+Desenvolvido por **Yuri Amaral Santos**
+📧 E-mail: [yuri.a.santos12@gmail.com](mailto:yuri.a.santos12@gmail.com)
+🌐 Portfolio: [https://yuri-amaral-santos-portfolio.vercel.app](https://yuri-amaral-santos-portfolio.vercel.app)
