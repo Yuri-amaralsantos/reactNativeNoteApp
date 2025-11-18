@@ -1,8 +1,6 @@
-import { OptionsModal } from "@/app/(tabs)/components/OptionsModal";
 import { useNotes } from "@/stores/useNote";
-import { Note } from "@/types/note";
-import { Link, router, useFocusEffect } from "expo-router";
-import React, { useCallback, useState } from "react";
+import { Link, useFocusEffect } from "expo-router";
+import React, { useCallback } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -13,8 +11,7 @@ import {
 import { NoteCard } from "./components/noteCard";
 
 export default function NotesScreen() {
-  const { notes = [], load, deleteNote } = useNotes();
-  const [selected, setSelected] = useState<Note | null>(null);
+  const { notes = [], load } = useNotes();
 
   useFocusEffect(
     useCallback(() => {
@@ -47,27 +44,7 @@ export default function NotesScreen() {
       <FlatList
         data={safeNotes}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <NoteCard note={item} onOptionsPress={(note) => setSelected(note)} />
-        )}
-      />
-
-      <OptionsModal
-        visible={!!selected}
-        onClose={() => setSelected(null)}
-        onEdit={() => {
-          if (!selected) return;
-          router.push({
-            pathname: "/note/[id]",
-            params: { id: selected.id },
-          });
-          setSelected(null);
-        }}
-        onDelete={async () => {
-          if (!selected) return;
-          await deleteNote(selected.id);
-          setSelected(null);
-        }}
+        renderItem={({ item }) => <NoteCard note={item} />}
       />
     </View>
   );

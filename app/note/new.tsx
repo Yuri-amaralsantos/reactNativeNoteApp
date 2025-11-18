@@ -1,6 +1,7 @@
 import { useNotes } from "@/stores/useNote";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Button,
   StyleSheet,
@@ -17,7 +18,8 @@ export default function NewNote() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [subtasks, setSubtasks] = useState<string[]>([]);
-  const [eventDate, setEventDate] = useState("");
+  const [eventDate, setEventDate] = useState<Date | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   function addSubtaskField() {
     setSubtasks([...subtasks, ""]);
@@ -27,6 +29,13 @@ export default function NewNote() {
     const copy = [...subtasks];
     copy[index] = value;
     setSubtasks(copy);
+  }
+
+  function onDateChange(_: any, selected?: Date) {
+    setShowDatePicker(false);
+    if (selected) {
+      setEventDate(selected);
+    }
   }
 
   function removeSubtask(index: number) {
@@ -51,7 +60,11 @@ export default function NewNote() {
     }
 
     if (type === "event") {
-      await addEventNote(title, eventDate, description);
+      await addEventNote(
+        title,
+        eventDate ? eventDate.toISOString() : "",
+        description
+      );
     }
 
     router.back();
@@ -128,12 +141,29 @@ export default function NewNote() {
       )}
 
       {type === "event" && (
-        <TextInput
-          style={styles.input}
-          placeholder="Data (ex: 2025-01-10)"
-          value={eventDate}
-          onChangeText={setEventDate}
-        />
+        <>
+          <Text style={styles.subtitle}>Data do evento</Text>
+
+          <TouchableOpacity
+            style={styles.input}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Text style={{ fontSize: 16 }}>
+              {eventDate
+                ? eventDate.toLocaleDateString("pt-BR")
+                : "Selecionar data"}
+            </Text>
+          </TouchableOpacity>
+
+          {showDatePicker && (
+            <DateTimePicker
+              value={eventDate ?? new Date()}
+              mode="date"
+              display="default"
+              onChange={onDateChange}
+            />
+          )}
+        </>
       )}
 
       <Button title="Salvar" onPress={save} />
