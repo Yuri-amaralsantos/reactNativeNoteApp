@@ -2,7 +2,7 @@
 
 ## Descrição
 
-Um app em react native para salvar notas simples, tarefas e eventos no calendário. As notas possuem somente texto. As tarefas possuem um contador onde se pode visualizar o progresso da
+Um app em react native para salvar notas simples, tarefas e eventos no calendário. As notas possuem somente texto. As tarefas possuem um contador onde se pode visualizar o progresso da tarefas. Os eventos podem ser visualizados no calendário ou na aréa de notas, além de possuírem uma descrição como as outras notas.
 
 ## Tecnologias Utilizadas
 
